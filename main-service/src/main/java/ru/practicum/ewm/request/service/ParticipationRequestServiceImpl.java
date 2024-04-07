@@ -99,6 +99,6 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
     private ParticipationRequest returnIfExists(Long requestId) {
         return repository.findById(requestId)
-                .orElseThrow(() -> new NotFoundException("Запрос по id - " + requestId+  " не найден"));
+                .orElseThrow(() -> new NotFoundException("Запрос по id - " + requestId + " не найден"));
     }
 }
