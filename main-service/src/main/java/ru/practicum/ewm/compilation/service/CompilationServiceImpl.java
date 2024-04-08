@@ -91,8 +91,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     private void checkExisting(Long compId) {
-        boolean exist = repository.existsById(compId);
-        if (!exist) {
+        if (!repository.existsById(compId)) {
             throw new NotFoundException("Сборка по id - " + compId +  " не найдена");
         }
     }
