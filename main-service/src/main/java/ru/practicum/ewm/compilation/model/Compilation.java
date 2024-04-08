@@ -16,10 +16,9 @@ import java.util.Set;
 @NoArgsConstructor
 @Table(name = "compilations")
 public class Compilation extends BaseEntity {
-    @Column(name = "pinned")
     private boolean pinned;
 
-    @Column(name = "title")
+    @Column(unique = true)
     private String title;
 
     @ManyToMany

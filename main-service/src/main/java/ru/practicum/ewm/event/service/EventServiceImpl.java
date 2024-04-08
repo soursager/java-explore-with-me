@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.client.StatsClient;
 import ru.practicum.ewm.dto.*;
@@ -45,6 +46,7 @@ public class EventServiceImpl implements EventService {
     private final ObjectMapper objectMapper;
 
     @Override
+    @Transactional
     public EventFullDto createEvent(NewEventDto newEventDto, Long userId) {
         Event event = EventMapper.toEvent(newEventDto);
         checkEventDateTime(event);
@@ -61,6 +63,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
         Event event = returnIfExists(eventId);
 
@@ -80,6 +83,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public List<EventShortDto> getEvents(SearchParameters params, HttpServletRequest request) {
         checkParamDateTime(params.getRangeStart(), params.getRangeEnd());
 
@@ -112,6 +116,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> getEventsByAdmin(SearchAdminParameters params) {
         checkParamDateTime(params.getRangeStart(), params.getRangeEnd());
 
@@ -132,6 +137,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> getEventsByUserId(Long userId, int from, int size) {
         userService.checkExistingUser(userId);
         PageRequest page = PageRequest.of(from / size, size);
@@ -142,6 +148,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventByIdAndUserId(Long eventId, Long userId) {
         Event event = checkEventBelongUser(eventId, userId);
 
@@ -150,11 +157,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public void updateEvent(Event event) {
         repository.save(event);
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEventByIdAndUserId(Long eventId, Long userId,
                                                  UpdateEventUserRequest updateEventUserRequest) {
         Event event = checkEventBelongUser(eventId, userId);
@@ -166,6 +175,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEventByIdAdmin(Long eventId, UpdateEventAdminRequest updateRequest) {
         Event event = returnIfExists(eventId);
         updateEvent(event, updateRequest, true);
@@ -175,6 +185,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequestsByUserAndEvent(Long userId, Long eventId) {
         checkEventBelongUser(eventId, userId);
         List<ParticipationRequest> requests = requestRepository.findAllByEventId(eventId);
@@ -186,6 +197,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventRequestStatusUpdateResult updateRequestsStatusByUserAndEvent(Long userId, Long eventId,
                                                                              EventRequestStatusUpdateRequest updateRequest) {
         Event event = checkEventBelongUser(eventId, userId);

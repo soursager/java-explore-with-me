@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.compilation.dto.*;
 import ru.practicum.ewm.compilation.model.*;
 import ru.practicum.ewm.event.model.Event;
@@ -24,6 +25,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final EventRepository eventRepository;
 
     @Override
+    @Transactional
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
         Set<Event> events = new HashSet<>(eventRepository.findAllById(newCompilationDto.getEvents()));
 
@@ -37,6 +39,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public CompilationDto updateCompilation(UpdateCompilationRequest updateRequest, Long compId) {
         Compilation compilation = returnIfExists(compId);
 
@@ -57,6 +60,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(Boolean isPinned, int from, int size) {
         PageRequest page = PageRequest.of(from / size, size);
         List<Compilation> compilations = isPinned != null ?
@@ -69,6 +73,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CompilationDto getCompilation(Long compId) {
         CompilationDto compilationDto = CompilationMapper.toCompilationDto(returnIfExists(compId));
 
@@ -77,6 +82,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public void deleteCompilation(Long compId) {
         checkExisting(compId);
 

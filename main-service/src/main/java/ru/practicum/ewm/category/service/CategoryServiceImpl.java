@@ -9,6 +9,7 @@ import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.model.CategoryMapper;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.exeption.NotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository repository;
 
     @Override
+    @Transactional
     public CategoryDto createCategory(NewCategoryDto categoryDto) {
         Category category = CategoryMapper.toCategory(categoryDto);
 
@@ -28,6 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryDto updateCategory(CategoryDto categoryDto, Long catId) {
         Category category = returnIfExists(catId);
         category.setName(categoryDto.getName());
@@ -37,6 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public void deleteCategory(Long catId) {
         Category category = returnIfExists(catId);
 
@@ -45,6 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDto> getCategories(int from, int size) {
         PageRequest page = PageRequest.of(from / size, size);
         List<Category> categories = repository.findAll(page).getContent();
@@ -56,6 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CategoryDto getCategoryById(Long catId) {
         Category category = returnIfExists(catId);
 

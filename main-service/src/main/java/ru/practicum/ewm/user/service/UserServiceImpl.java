@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.exeption.*;
 import ru.practicum.ewm.user.dto.*;
 import ru.practicum.ewm.user.model.*;
@@ -19,6 +20,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository repository;
 
     @Override
+    @Transactional
     public UserDto createUser(NewUserRequest userRequest) {
         User user = UserMapper.toUser(userRequest);
 
@@ -27,6 +29,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
         PageRequest page = PageRequest.of(from / size, size);
         List<User> users = ids == null ? repository.findAll(page).getContent() : repository.findAllByIdIn(ids, page);
@@ -38,6 +41,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(long userId) {
         if (!repository.existsById(userId)) {
             throw new NotFoundException("Пользователь по id - " + userId +  " не найден");

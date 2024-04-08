@@ -3,6 +3,7 @@ package ru.practicum.ewm.request.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.exeption.*;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.event.model.Event;
@@ -27,6 +28,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     private final EventService eventService;
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequests(Long userId) {
         List<ParticipationRequest> requests = repository.findAllByRequesterId(userId);
         log.info("Возврат запросов пользователя по id - {} - {}", userId, requests);
@@ -37,6 +39,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
         Event event = eventService.returnIfExists(eventId);
         User requester = userService.returnIfExists(userId);
@@ -66,6 +69,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         userService.checkExistingUser(userId);
         ParticipationRequest request = returnIfExists(requestId);

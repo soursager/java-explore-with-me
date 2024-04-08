@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table(name = "participation_request")
 public class ParticipationRequest extends BaseEntity {
-    @Column(name = "created")
     private LocalDateTime created;
 
     @JoinColumn(name = "event_id")
@@ -29,7 +28,6 @@ public class ParticipationRequest extends BaseEntity {
     @JoinColumn(name = "requester_id")
     private User requester;
 
-    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private State status;
 }
