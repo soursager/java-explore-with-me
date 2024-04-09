@@ -1,4 +1,3 @@
-FROM ubuntu:latest
-LABEL authors="darin"
-
-ENTRYPOINT ["top", "-b"]
+FROM amazoncorretto:11
+COPY target/*.jar main.jar
+ENTRYPOINT ["java", "-jar", "/main.jar"]

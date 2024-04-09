@@ -13,16 +13,19 @@ import ru.practicum.ewm.dto.ViewStatsDto;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class StatsClient extends BaseClient {
+
     private static final String STATS_API_PREFIX = "/stats?start={start}&end={end}&unique={unique}";
 
     @Autowired
-    public StatsClient(@Value("${server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public StatsClient(@Value("${server.url}") String serverUrl,
+                       RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
@@ -31,10 +34,11 @@ public class StatsClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<EndpointHitDto> createHit(String app, String uri, String ip, String timestamp) {
-        EndpointHitDto hit = new EndpointHitDto(app, uri, ip, LocalDateTime.parse(timestamp));
+    public void createHit(String app, String uri, String ip, String timestamp) {
+        EndpointHitDto hit = new EndpointHitDto(app, uri, ip, LocalDateTime.parse(timestamp,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-        return post("/hit", hit);
+        post("/hit", hit);
     }
 
     public ResponseEntity<List<ViewStatsDto>> getStats(String start, String end, List<String> uris, Boolean unique) {
@@ -43,7 +47,8 @@ public class StatsClient extends BaseClient {
                 "unique", unique));
 
         if (uris != null) {
-            parameters.put("uris", uris);
+
+            parameters.put("uris", String.join(",", uris));
             return get(STATS_API_PREFIX + "&uris={uris}", parameters);
         }
         return get(STATS_API_PREFIX, parameters);
