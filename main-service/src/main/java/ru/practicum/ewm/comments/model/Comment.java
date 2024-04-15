@@ -23,21 +23,16 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String comment;
-
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;
-
     @OneToOne
     @JoinColumn(name = "author_id")
     private User author;
-
     @CreationTimestamp
     private LocalDateTime created;
-
     @UpdateTimestamp
     private LocalDateTime edited;
-
     @Enumerated(EnumType.STRING)
     private CommentState state;
 
