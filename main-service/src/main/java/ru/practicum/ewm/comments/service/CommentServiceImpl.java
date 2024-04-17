@@ -130,7 +130,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new NotFoundException("Событие не найдена или недоступна"));
     }
 
-    private List<CommentDto> getCommentDtos(List<Comment> commentList ) {
+    private List<CommentDto> getCommentDtos(List<Comment> commentList) {
         return commentList.stream().map(CommentMapper::toDto).collect(Collectors.toList());
     }
 }
