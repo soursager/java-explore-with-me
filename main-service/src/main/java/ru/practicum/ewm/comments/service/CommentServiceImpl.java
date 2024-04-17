@@ -35,10 +35,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto addComment(long userId, long eventId, RequestCommentDto requestCommentDto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден или недоступен"));
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие не найдено или недоступно"));
+        User user = validateUser(userId);
+        Event event = validateEvent(eventId);
         if (commentRepository.existsByAuthor(user)) {
             throw new ConflictException("Нельзя оставить комментарий повторно, вы можете обновить " +
                     "свой прошлый комментарий");
@@ -56,8 +54,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto updateComment(long userId, long commentId, RequestCommentDto requestCommentDto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден или недоступен"));
+        User user = validateUser(userId);
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Комментарий не найден или недоступен"));
         if (!user.equals(comment.getAuthor())) {
@@ -72,10 +69,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public void deleteComment(long userId, long eventId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден или недоступен"));
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие не найдено или недоступно"));
+        User user = validateUser(userId);
+        Event event = validateEvent(eventId);
         Comment comment = commentRepository.findCommentByAuthorAndEvent(user, event);
         log.info("Комментарий удален {}", comment);
         commentRepository.delete(comment);
@@ -84,10 +79,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public List<CommentDto> getCommentsByEvent(long userId, long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие не найдена или недоступна"));
+        Event event = validateEvent(eventId);
         List<Comment> commentList = commentRepository.findAllByEventAndState(event, CommentState.PUBLISHED);
-        List<CommentDto> commentDtos = commentList.stream().map(CommentMapper::toDto).collect(Collectors.toList());
+        List<CommentDto> commentDtos = getCommentDtos(commentList);
         log.info("Получен список комментариев {} к Event {} ", commentDtos, event);
         return commentDtos;
     }
@@ -100,10 +94,10 @@ public class CommentServiceImpl implements CommentService {
         if (commentState == null) {
             throw new NotFoundException("Запрос составлен некорректно");
         }
-        if (commentState.equals(CommentState.PUBLISHED)) {
+        if (commentState == CommentState.PUBLISHED) {
             comment.setState(CommentState.PUBLISHED);
         }
-        if (commentState.equals(CommentState.CANCELED)) {
+        if (commentState == CommentState.CANCELED) {
             comment.setState(CommentState.CANCELED);
         }
         commentRepository.save(comment);
@@ -122,8 +116,21 @@ public class CommentServiceImpl implements CommentService {
         }
         List<Comment> commentList = commentRepository.findAllByCreatedIsAfterAndCreatedIsBeforeOrderByCreated(start,
                 end, pageable);
-        List<CommentDto> commentDtos = commentList.stream().map(CommentMapper::toDto).collect(Collectors.toList());
         log.info("Получен список комментариев с заданными параметрами фильтрации {}", commentList);
-        return commentDtos;
+        return getCommentDtos(commentList);
+    }
+
+    private User validateUser(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден или недоступен"));
+    }
+
+    private Event validateEvent(long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие не найдена или недоступна"));
+    }
+
+    private List<CommentDto> getCommentDtos(List<Comment> commentList ) {
+        return commentList.stream().map(CommentMapper::toDto).collect(Collectors.toList());
     }
 }
