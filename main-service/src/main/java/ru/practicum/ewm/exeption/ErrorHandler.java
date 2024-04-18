@@ -67,4 +67,18 @@ public class ErrorHandler {
         log.error("Вызвана ошибка некорректного запроса - {}", e.getLocalizedMessage());
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handlerConflictException(final ConflictException exception) {
+        log.info("Статус 409, было нарушено ограничение целостности");
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(final ValidationException e) {
+        log.info("Статус 400, для запрошенной операции условия не выполнены");
+        return new ErrorResponse(e.getMessage());
+    }
 }
